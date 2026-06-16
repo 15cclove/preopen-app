@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法科 · 盤前戰情室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d14; --surface:#121622; --surface2:#181d2c; --line:rgba(255,255,255,.07);
+    --line2:rgba(255,255,255,.12); --text:#e7eaf2; --muted:#838aaa;
+    --up:#ff4d56; --down:#1fd1a3; --gold:#d4af37; --neutral:#7a8094;
+    --mono:"JetBrains Mono",monospace; --sans:"Noto Sans TC",sans-serif; --serif:"Noto Serif TC",serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;
+    -webkit-font-smoothing:antialiased;padding:0 0 64px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--line);padding:18px 0;position:sticky;top:0;
+    background:rgba(10,13,20,.85);backdrop-filter:blur(8px);z-index:10}
+  .hbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:baseline;gap:12px}
+  .brand .mark{font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:2px}
+  .brand .sub{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:1px}
+  .hmeta{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  button.refresh{font-family:var(--mono);font-size:12px;background:var(--surface2);color:var(--text);
+    border:1px solid var(--line2);border-radius:6px;padding:7px 12px;cursor:pointer;transition:.15s}
+  button.refresh:hover{border-color:var(--gold);color:var(--gold)}
+  button.refresh:disabled{opacity:.5;cursor:wait}
+
+  section{margin-top:34px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2.5px;color:var(--gold);
+    text-transform:uppercase;margin-bottom:14px}
+  h2{font-family:var(--serif);font-weight:600;font-size:19px;margin-bottom:6px}
+  h3{font-family:var(--serif);font-size:15px;margin-bottom:12px;font-weight:600}
+  .note{color:var(--muted);font-size:13px}
+
+  .hero{display:grid;grid-template-columns:260px 1fr;gap:28px;align-items:center;
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px}
+  @media(max-width:720px){.hero{grid-template-columns:1fr;text-align:center}}
+  .seal{justify-self:center;width:200px;height:200px;border-radius:50%;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;border:3px solid var(--neutral);
+    box-shadow:0 0 0 6px var(--bg),0 0 0 7px var(--neutral)}
+  .seal .lab{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--muted)}
+  .seal .dir{font-family:var(--serif);font-size:50px;font-weight:700;line-height:1.1;margin:2px 0}
+  .seal .conf{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .seal.up{border-color:var(--up);box-shadow:0 0 0 6px var(--bg),0 0 0 7px var(--up),0 0 38px rgba(255,77,86,.25)}
+  .seal.up .dir{color:var(--up)}
+  .seal.down{border-color:var(--down);box-shadow:0 0 0 6px var(--bg),0 0 0 7px var(--down),0 0 38px rgba(31,209,163,.22)}
+  .seal.down .dir{color:var(--down)}
+  .hero-side .ptag{font-family:var(--mono);font-size:11px;color:var(--gold);margin-bottom:8px}
+  .mini{display:flex;gap:14px;flex-wrap:wrap}
+  .minicard{flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--line);
+    border-radius:10px;padding:12px 15px}
+  .minicard .t{font-size:12px;color:var(--muted);margin-bottom:3px}
+  .minicard .v{font-family:var(--serif);font-size:21px;font-weight:600}
+  .minicard .c{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .action{margin-top:14px;font-size:13px;color:var(--gold);border-left:2px solid var(--gold);padding-left:10px}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(116px,1fr));gap:10px}
+  .tile{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+  .tile .tk{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .tile .nm{font-size:12px;margin:3px 0 6px}
+  .tile .pct{font-family:var(--mono);font-size:18px;font-weight:600}
+  .tile.up .pct{color:var(--up)} .tile.down .pct{color:var(--down)}
+  .grp{font-family:var(--mono);font-size:11px;color:var(--muted);margin:16px 0 8px;letter-spacing:1px}
+
+  .seg{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:8px;
+    padding:3px;gap:3px;margin-bottom:16px}
+  .seg button{font-family:var(--mono);font-size:12px;background:transparent;color:var(--muted);
+    border:none;border-radius:6px;padding:7px 14px;cursor:pointer}
+  .seg button.on{background:var(--bg);color:var(--text)}
+
+  .kill{display:flex;align-items:center;gap:14px;border-radius:12px;padding:16px 20px;margin-bottom:16px;
+    border:1px solid var(--line2);background:var(--surface)}
+  .kill .badge{font-family:var(--mono);font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;white-space:nowrap}
+  .kill.pass{border-color:rgba(212,175,55,.5)} .kill.pass .badge{background:rgba(212,175,55,.15);color:var(--gold)}
+  .kill.fail .badge{background:rgba(122,128,148,.18);color:var(--muted)}
+  .kill .txt{font-size:13.5px}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;margin-top:14px}
+  .mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px}
+  .metric{background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:13px 15px}
+  .metric .ml{font-size:11.5px;color:var(--muted);margin-bottom:5px}
+  .metric .mv{font-family:var(--mono);font-size:21px;font-weight:600}
+  .metric .mv.good{color:var(--gold)} .metric .mv.bad{color:var(--up)}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:right;padding:9px 12px;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:400}
+  td.mono{font-family:var(--mono)}
+  td.pos{color:var(--up)} td.neg{color:var(--down)}
+  .tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;
+    border:1px solid var(--line2);color:var(--muted)}
+  .tag.lead{color:var(--gold);border-color:var(--gold)}
+  .tag.sig{color:var(--gold);border-color:var(--gold)}
+  tr.dim{opacity:.45}
+  .bar{display:inline-block;height:8px;border-radius:2px;vertical-align:middle}
+  .bar.g{background:var(--gold)} .bar.r{background:var(--up)}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:760px){.twocol{grid-template-columns:1fr}}
+  .loading{color:var(--muted);font-family:var(--mono);font-size:13px;padding:26px 0}
+  .err{color:var(--up);font-family:var(--mono);font-size:13px;background:rgba(255,77,86,.08);
+    border:1px solid rgba(255,77,86,.3);border-radius:8px;padding:14px;margin-top:14px}
+  .disclaimer{margin-top:40px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <div class="brand"><span class="mark">法科 · 盤前戰情室</span>
+    <span class="sub">TAIEX PRE-OPEN ENGINE v0.2</span></div>
+  <div class="hmeta"><span id="asof">—</span>
+    <button class="refresh" id="refreshBtn" onclick="refresh()">重抓資料</button></div>
+</div></header>
+
+<div class="wrap">
+
+  <section>
+    <div class="eyebrow">今日判讀 · before 08:45 · 主目標 intraday</div>
+    <div id="heroErr"></div>
+    <div class="hero" id="hero"><div class="loading">載入今日盤前資料中…（首次需抓行情並訓練，約一分鐘）</div></div>
+  </section>
+
+  <section>
+    <div class="eyebrow">領先變數即時讀數</div>
+    <h2>盤前特徵</h2>
+    <p class="note">紅=上漲（台股偏多訊號）、綠=下跌。美股/期貨為昨夜收盤報酬，亞洲為今早開盤跳空。</p>
+    <div id="features"><div class="loading">…</div></div>
+  </section>
+
+  <section>
+    <div class="eyebrow">交易研究 · 樣本外、已扣成本</div>
+    <h2>績效與訊號品質</h2>
+    <p class="note" id="resMeta">—</p>
+    <div class="seg" id="seg">
+      <button data-t="intraday" class="on">盤中延續（主）</button>
+      <button data-t="gap">開盤跳空</button>
+      <button data-t="day">全日方向</button>
+    </div>
+    <div id="researchErr"></div>
+    <div id="killBox"></div>
+    <div class="card"><h3>交易績效（門檻 p≥0.55 進場，扣 6+4 bps 成本）</h3>
+      <div class="mgrid" id="metrics"><div class="loading">…</div></div></div>
+    <div class="card"><h3>信心分位數報酬（毛報酬，看「機率越高是否報酬越好」）</h3>
+      <table id="confTable"><tbody><tr><td class="loading">…</td></tr></tbody></table></div>
+    <div class="card"><h3>相關性排名（金色標記 = 通過 BH-FDR 校正）</h3>
+      <table id="corrTable"><tbody><tr><td class="loading">…</td></tr></tbody></table></div>
+  </section>
+
+  <section>
+    <div class="eyebrow">領先性診斷 · lead-lag</div>
+    <h2>CCF 與 Granger</h2>
+    <p class="note">原始同曆日診斷（尚未 timestamp 對齊）：best_lag&gt;0 且 lag+1 仍強、Granger p&lt;0.05 = 初步具領先性。</p>
+    <div class="card"><table id="ccfTable"><tbody><tr><td class="loading">…</td></tr></tbody></table></div>
+  </section>
+
+  <p class="disclaimer">量化研究與訊號輔助用途。所有相關性、勝率、期望值均為歷史樣本外統計，不保證未來，亦非投資建議。
+    代理版以 ^TWII（加權指數現貨）替代台指期，僅驗證架構與統計價值；可交易結論須改用 TAIFEX 台指期資料。</p>
+</div>
+
+<script>
+const fmt = v => (v>0?"+":"")+Number(v).toFixed(2);
+const show = v => (v===null||v===undefined)?"—":v;
+let RESEARCH=null, curT="intraday";
+
+async function load(){ loadToday(); loadResearch(); }
+
+async function loadToday(){
+  try{
+    const d = await (await fetch("/api/today")).json();
+    if(d.error) throw new Error(d.error);
+    document.getElementById("asof").textContent = "判讀日 "+d.date;
+    renderHero(d); renderFeatures(d.features);
+  }catch(e){
+    document.getElementById("hero").innerHTML="";
+    document.getElementById("heroErr").innerHTML=
+      `<div class="err">載入今日資料失敗：${e.message}。請確認後端已啟動且可連 Yahoo Finance。</div>`;
+  }
+}
+function sc(dir){ return dir==="偏多"?"up":dir==="偏空"?"down":""; }
+function renderHero(d){
+  const m=d.predictions.intraday, gap=d.predictions.gap, day=d.predictions.day;
+  document.getElementById("hero").innerHTML=`
+    <div class="seal ${sc(m.direction)}">
+      <div class="lab">盤中延續</div><div class="dir">${m.direction}</div>
+      <div class="conf">P(漲)=${m.prob_up} · 信心 ${m.confidence}%</div></div>
+    <div class="hero-side">
+      <div class="ptag">主目標：開盤後到收盤是否延續（唯一真正可交易）</div>
+      <div class="mini">
+        <div class="minicard"><div class="t">開盤跳空</div>
+          <div class="v" style="color:var(--${sc(gap.direction)||'neutral'})">${gap.direction}</div>
+          <div class="c">P=${gap.prob_up} · 多已反映在開盤價</div></div>
+        <div class="minicard"><div class="t">全日方向</div>
+          <div class="v" style="color:var(--${sc(day.direction)||'neutral'})">${day.direction}</div>
+          <div class="c">P=${day.prob_up} · 易被跳空主導</div></div>
+      </div>
+      <div class="action">建議動作：${m.action}</div>
+    </div>`;
+}
+function renderFeatures(feats){
+  const g={}; feats.forEach(f=>(g[f.group]=g[f.group]||[]).push(f));
+  let h="";
+  for(const k in g){ h+=`<div class="grp">${k}</div><div class="tiles">`;
+    g[k].forEach(f=>{const c=f.value>0?"up":f.value<0?"down":"";
+      h+=`<div class="tile ${c}"><div class="tk">${f.ticker}</div>
+        <div class="nm">${f.name}</div><div class="pct">${fmt(f.value)}%</div></div>`;});
+    h+=`</div>`; }
+  document.getElementById("features").innerHTML=h;
+}
+
+async function loadResearch(){
+  try{
+    const d = await (await fetch("/api/research")).json();
+    if(d.error) throw new Error(d.error);
+    RESEARCH=d;
+    const s=d.sample;
+    document.getElementById("resMeta").textContent=
+      `樣本 ${s.n} 日（${s.start} ~ ${s.end}）· 特徵 ${s.features.length} 項 · 來回成本 ${s.cost_rt_bps}bps · ${d.note}`;
+    renderTarget(curT); renderCCF(d.ccf,d.granger);
+  }catch(e){
+    document.getElementById("researchErr").innerHTML=`<div class="err">載入研究資料失敗：${e.message}</div>`;
+  }
+}
+document.getElementById("seg").addEventListener("click",e=>{
+  if(e.target.tagName!=="BUTTON")return;
+  document.querySelectorAll("#seg button").forEach(b=>b.classList.remove("on"));
+  e.target.classList.add("on"); curT=e.target.dataset.t; if(RESEARCH)renderTarget(curT);
+});
+
+function renderTarget(t){
+  const tg=RESEARCH.targets[t];
+  renderKill(tg.kill); renderMetrics(tg.metrics); renderConf(tg.confidence); renderCorr(tg.correlations);
+}
+function renderKill(k){
+  const pass=k.pass;
+  document.getElementById("killBox").innerHTML=
+    `<div class="kill ${pass?'pass':'fail'}"><span class="badge">${pass?'PASS':'HOLD'}</span>
+      <span class="txt">kill criterion：${k.verdict}　
+        ${k.expectancy_bps!=null?`高信心期望值 ${fmt(k.expectancy_bps)}bps · PF ${show(k.profit_factor)} · n=${k.n}`:(k.reason||'')}</span></div>`;
+}
+function metric(label,val,good){
+  const cls = good===true?"good":good===false?"bad":"";
+  return `<div class="metric"><div class="ml">${label}</div><div class="mv ${cls}">${show(val)}</div></div>`;
+}
+function renderMetrics(m){
+  if(m.n_trades===0){document.getElementById("metrics").innerHTML=`<div class="note">${m.note||'無交易'}</div>`;return;}
+  const exGood=m.expectancy_bps>0, pfGood=(m.profit_factor||0)>1, shGood=(m.sharpe||0)>0;
+  document.getElementById("metrics").innerHTML=
+    metric("每筆期望值",fmt(m.expectancy_bps)+" bps",exGood)+
+    metric("Profit Factor",show(m.profit_factor),pfGood)+
+    metric("Sharpe(年化)",show(m.sharpe),shGood)+
+    metric("最大回撤",m.max_dd_bps+" bps",false)+
+    metric("勝率",(m.win_rate*100).toFixed(1)+"%",null)+
+    metric("賺賠比",show(m.payoff),(m.payoff||0)>1)+
+    metric("交易次數",m.n_trades+` (${(m.trade_rate*100).toFixed(0)}%)`,null)+
+    metric("總報酬",fmt(m.total_ret_bps)+" bps",m.total_ret_bps>0);
+}
+function renderConf(rows){
+  const maxA=Math.max(1,...rows.map(r=>Math.abs(r.mean_bps||0)));
+  let h=`<thead><tr><th>信心區間 p(漲)</th><th>樣本數</th><th>命中率</th><th>平均毛報酬</th><th></th></tr></thead><tbody>`;
+  rows.forEach(r=>{
+    if(!r.n){h+=`<tr class="dim"><td>${r.bucket}</td><td class="mono">0</td><td>—</td><td>—</td><td></td></tr>`;return;}
+    const w=Math.round(Math.abs(r.mean_bps)/maxA*120);
+    const bar=`<span class="bar ${r.mean_bps>=0?'g':'r'}" style="width:${w}px"></span>`;
+    h+=`<tr><td>${r.bucket}</td><td class="mono">${r.n}</td>
+      <td class="mono">${(r.hit_rate*100).toFixed(1)}%</td>
+      <td class="mono" style="color:${r.mean_bps>=0?'var(--gold)':'var(--up)'}">${fmt(r.mean_bps)}</td>
+      <td>${bar}</td></tr>`;
+  });
+  document.getElementById("confTable").innerHTML=h+`</tbody>`;
+}
+function renderCorr(rows){
+  let h=`<thead><tr><th>標的</th><th>類別</th><th>Pearson</th><th>Spearman</th><th>p值</th><th>q(FDR)</th></tr></thead><tbody>`;
+  rows.forEach(c=>{
+    h+=`<tr><td>${c.name} <span class="tag ${c.fdr_sig?'sig':''}">${c.ticker}</span></td><td>${c.group}</td>
+      <td class="mono ${c.pearson>0?'pos':'neg'}">${fmt(c.pearson)}</td>
+      <td class="mono">${fmt(c.spearman)}</td><td class="mono">${c.p}</td>
+      <td class="mono">${c.q}</td></tr>`;
+  });
+  document.getElementById("corrTable").innerHTML=h+`</tbody>`;
+}
+function renderCCF(ccf,granger){
+  const gm={}; granger.forEach(g=>gm[g.ticker]=g);
+  let h=`<thead><tr><th>標的</th><th>best lag</th><th>best r</th><th>lag0</th><th>lag+1</th>
+    <th>Granger p</th><th>領先</th></tr></thead><tbody>`;
+  ccf.forEach(c=>{const g=gm[c.ticker]||{}; const lead=c.leads||g.leads;
+    h+=`<tr><td>${c.name} <span class="tag">${c.ticker}</span></td>
+      <td class="mono">${c.best_lag>0?"+":""}${c.best_lag}</td>
+      <td class="mono ${c.best_r>0?'pos':'neg'}">${fmt(c.best_r)}</td>
+      <td class="mono">${fmt(c.lag0)}</td><td class="mono">${fmt(c.lag1)}</td>
+      <td class="mono">${(g.pvals||[]).join(", ")}</td>
+      <td><span class="tag ${lead?'lead':''}">${lead?"領先":"同步/落後"}</span></td></tr>`;});
+  document.getElementById("ccfTable").innerHTML=h+`</tbody>`;
+}
+
+async function refresh(){
+  const b=document.getElementById("refreshBtn"); b.disabled=true; b.textContent="重抓中…";
+  try{ await fetch("/api/refresh",{method:"POST"}); location.reload(); }
+  catch(e){ b.disabled=false; b.textContent="重抓資料"; alert("刷新失敗："+e.message); }
+}
+load();
+</script>
+</body>
+</html>

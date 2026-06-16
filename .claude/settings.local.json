@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -n '108/115p' /Users/apple/Documents/preopen_app/analysis.py)",
+      "Bash(sed -n '108,130p' /Users/apple/Documents/preopen_app/analysis.py)"
+    ]
+  }
+}
