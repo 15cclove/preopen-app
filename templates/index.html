@@ -40,7 +40,10 @@ main{max-width:580px;margin:0 auto;padding:28px 20px 80px}
 /* ── 今日建議卡（主角） ── */
 .hero{border-radius:20px;background:var(--surface);
   border:1px solid var(--line2);padding:32px 24px 28px;margin-bottom:20px;text-align:center}
-.hero-label{font-size:12px;color:var(--muted);letter-spacing:2px;margin-bottom:20px}
+.hero-label{font-size:12px;color:var(--muted);letter-spacing:2px;margin-bottom:4px}
+.hero-meta{display:flex;flex-direction:column;gap:4px;margin-bottom:18px;align-items:center}
+.hero-target{font-size:15px;font-weight:700;color:var(--text)}
+.hero-updated{font-family:var(--mono);font-size:11px;color:var(--dimmed)}
 
 .stamp{width:148px;height:148px;border-radius:50%;margin:0 auto 22px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -150,8 +153,7 @@ tr.dim{opacity:.4}
 <header>
   <div class="brand">法科盤前<span>台指期方向預測</span></div>
   <div class="hright">
-    <span class="datebadge" id="asof">—</span>
-    <button class="refresh-btn" id="refreshBtn" onclick="doRefresh()">重抓最新資料</button>
+    <button class="refresh-btn" id="refreshBtn" onclick="doRefresh()">手動更新資料</button>
   </div>
 </header>
 
@@ -160,6 +162,10 @@ tr.dim{opacity:.4}
   <!-- ── 今日建議（主角） ── -->
   <div class="hero" id="heroCard">
     <div class="hero-label">今日台指期操作建議</div>
+    <div class="hero-meta">
+      <div class="hero-target" id="heroTarget">—</div>
+      <div class="hero-updated" id="heroUpdated">資料載入中⋯</div>
+    </div>
     <div class="stamp neutral" id="stamp">
       <div class="stamp-zh" id="stampZh">—</div>
       <div class="stamp-en" id="stampEn">載入中</div>
@@ -231,7 +237,6 @@ async function loadToday(){
   try{
     const d = await (await fetch("/api/today")).json();
     if(d.error) throw new Error(d.error);
-    document.getElementById("asof").textContent = d.date + " 盤前";
     renderHero(d);
     renderSignals(d.features);
     window._today = d;
@@ -286,6 +291,11 @@ function renderHero(d){
   document.getElementById("heroSub").textContent = c.sub;
   document.getElementById("confFill").style.width = m.confidence + "%";
   document.getElementById("confPct").textContent = m.confidence + "%";
+  // 更新時間與預測目標
+  const td = d.target_date || "—";
+  const ua = d.updated_at || "—";
+  document.getElementById("heroTarget").textContent = "本操作建議針對 " + td + " 台指期日盤";
+  document.getElementById("heroUpdated").textContent = ua + " 更新資料";
 
   const body = document.getElementById("stepsBody");
   body.innerHTML = c.steps.map(([h,p],i)=>
