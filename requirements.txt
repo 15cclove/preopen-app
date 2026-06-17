@@ -7,3 +7,5 @@ scipy
 statsmodels
 scikit-learn
 FinMind
+APScheduler
+pytz
